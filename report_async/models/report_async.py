@@ -70,6 +70,8 @@ class ReportAsync(models.Model):
         help="List all files created by this report background process",
     )
 
+    eta = fields.Datetime(string='Execute only after')
+
     @api.multi
     def _compute_job(self):
         for rec in self:
@@ -109,7 +111,7 @@ class ReportAsync(models.Model):
         action = self.env.ref(self.action_id.xml_id)
         result = action.read()[0]
         ctx = safe_eval(result.get('context', {}))
-        ctx.update({'async_process': True})
+        ctx.update({'async_process': True, 'eta': self.eta})
         result['context'] = ctx
         return result
 
